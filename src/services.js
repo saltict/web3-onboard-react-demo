@@ -19,13 +19,39 @@ import tallyModule from '@web3-onboard/tallyho'
 import gas from '@web3-onboard/gas'
 
 // Replace with your DApp's Infura ID
-const INFURA_ID = 'cea9deb6467748b0b81b920b005c10c1'
+const INFURA_ID = 'c070da96634d4257a957cb9f7ae33e3f'
 
 export const infuraRPC = `https://mainnet.infura.io/v3/${INFURA_ID}`
 
 const dappId = '1730eff0-9d50-4382-a3fe-89f0d34a2070'
 
-const injected = injectedModule()
+const subwallet = {
+  // The label that will be displayed in the wallet selection modal
+  label: 'SubWallet',
+  // The property on the window where the injected provider is defined
+  // Example: window.ethereum
+  injectedNamespace: 'SubWallet',
+  // A function that returns a bool indicating whether or not the provider is
+  // of a certain identity. In this case, a unique property on the provider
+  // is used to identify the provider.
+  // In most cases this is in the format: is<provider-name>.
+  // You may also include custom logic here if checking for the property
+  // isn't sufficient.
+  checkProviderIdentity: ({ provider }) => !!provider && !!provider['isSubWallet'],
+
+  // A method that returns a string of the wallet icon which will be displayed
+  getIcon: async () => (await import('./icons/subwallet.svg')).default,
+  // Returns a valid EIP1193 provider. In some cases the provider will need to be patched to satisfy the EIP1193 Provider interface
+  getInterface: () => ({
+    provider: window.SubWallet
+  }),
+  // A list of platforms that this wallet supports
+  platforms: ['desktop', 'mobile']
+}
+
+const injected = injectedModule({
+  custom: [subwallet]
+})
 const coinbase = coinbaseModule()
 const walletConnect = walletConnectModule()
 
